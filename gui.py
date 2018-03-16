@@ -55,6 +55,15 @@ class Element:
         self.rect.x += x
         self.rect.y += y
 
+    def apply_event(self, event):
+        pass
+
+    def update(self):
+        pass
+
+    def render(self, surface):
+        pass
+
 
 class Button(Element):
     def __init__(self, text, pos, size, func, name, text_color=(77, 81, 83), but_color=(230, 230, 230),
@@ -214,8 +223,10 @@ class ButtonFlag(ButtonImage):
                         #            self.func()
 
 
-class Label:
+class Label(Element):
     def __init__(self, rect, text):
+        super().__init__()
+
         self.rect = pygame.Rect(rect)
         self.text = text
         self.bgcolor = pygame.Color("white")
@@ -229,6 +240,38 @@ class Label:
         self.rendered_text = self.font.render(self.text, 1, self.font_color)
         self.rendered_rect = self.rendered_text.get_rect(x=self.rect.x + 2, centery=self.rect.centery)
         surface.blit(self.rendered_text, self.rendered_rect)
+
+
+class Div:
+    def __init__(self, *buttons):
+        self.elements = [but for but in buttons]
+        self.name = [but.name for but in buttons]
+
+    def update(self):
+        for element in self.elements:
+            element.update()
+
+    def render(self, surface):
+        for element in self.elements:
+            element.render(surface)
+
+    def apply_event(self, event):
+        for element in self.elements:
+            element.apply_event(event)
+
+    def move(self, x, y):
+        for element in self.elements:
+            element.move(x, y)
+
+
+class DivButtons(Div):
+    def apply_event(self, event):
+        for but in self.elements:
+            ans = but.apply_event(event)
+            if ans:
+                for but_ in self.elements:
+                    if but_.name != ans:
+                        but_.states['clicked'] = False
 
 
 class TextBox(Label):
@@ -302,33 +345,32 @@ class TextBox(Label):
                 (w + 2, self.rendered_rect.bottom - 2))
 
 
-class Div:
-    def __init__(self, *buttons):
-        self.elements = [but for but in buttons]
-        self.name = [but.name for but in buttons]
+class TextBlock(Element):
+    def __init__(self, rect, text, size, text_color=Color('black'), bg_color=-1,name = ''):
+        super().__init__()
 
-    def update(self):
-        for element in self.elements:
-            element.update()
+        self.rect = pygame.Rect(rect)
+
+        self.text = text
+
+        self.text_color = text_color
+        self.bg_color = bg_color
+
+        self.font = pygame.font.Font(None, size)
+
+        self.name = name
+
+        self.active_text = True
 
     def render(self, surface):
-        for element in self.elements:
-            element.render(surface)
+        if self.bg_color != -1:
+            surface.fill(self.bg_color, self.rect)
+        if self.active_text:
+            if self.text != []:
+                height = self.font.size(self.text[0])[1]
 
-    def apply_event(self, event):
-        for element in self.elements:
-            element.apply_event(event)
-
-    def move(self, x, y):
-        for element in self.elements:
-            element.move(x, y)
-
-
-class DivButtons(Div):
-    def apply_event(self, event):
-        for but in self.elements:
-            ans = but.apply_event(event)
-            if ans:
-                for but_ in self.elements:
-                    if but_.name != ans:
-                        but_.states['clicked'] = False
+                for num, string in enumerate(self.text):
+                    self.rendered_text = self.font.render(string, 1, self.text_color)
+                    self.rendered_rect = self.rendered_text.get_rect()
+                    self.rendered_rect.x, self.rendered_rect.y= self.rect.x+3, height*(num+1)+self.rect.y-12
+                    surface.blit(self.rendered_text, self.rendered_rect)
