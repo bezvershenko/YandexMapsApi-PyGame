@@ -316,7 +316,6 @@ class TextBox(Label):
                     else:
                         self.caret = 0
 
-
     def update(self):
         if self.active and self.flag_first_active:
             self.flag_first_active = False
