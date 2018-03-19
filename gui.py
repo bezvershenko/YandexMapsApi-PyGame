@@ -367,6 +367,13 @@ class TextBlock(Element):
 
         self.active_text = True
 
+    def append(self, x):
+        if x not in self.text:
+            self.text.append(x)
+
+    def pop(self, index = -1):
+        del self.text[index]
+
     def render(self, surface):
         self.change_text()
         if self.bg_color != -1:
@@ -389,16 +396,21 @@ class TextBlock(Element):
             while _ >= self.rect.w:
                 c -= 1
                 flag = True
-                _string = string.split(', ')[:c]
-                string_ = string.split(', ')[c:]
-
+                _string = string.split(' ')[:c]
+                string_ = string.split(' ')[c:]
                 _ = self.font.render(', '.join(_string), 1, self.text_color).get_size()[0]
 
+
             if flag:
-                self.text = [', '.join(self.text[:num]), ', '.join(_string), ', '.join(string_),
-                             ', '.join(self.text[num + 1:])]
-                if self.text[0] == '':
-                    self.text = self.text[1:]
+                self.text = [' '.join(self.text[:num]), ' '.join(_string), ' '.join(string_),
+                             ' '.join(self.text[num + 1:])]
+                for str_ in self.text:
+                    if str_ == '':
+                        self.text = self.text[1:]
+                    else:
+                        break
+                print(self.text)
+
 
 
 class Switch():

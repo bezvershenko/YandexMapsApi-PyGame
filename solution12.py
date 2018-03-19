@@ -66,7 +66,7 @@ def get_coord(lon, lat, text_box_name=None, address=None, text_block=None, switc
             if text_block:
                 _address_ = get_address(_address).split(', ')
                 text_block.text = [_address_[0], ', '.join(_address_[1:])]
-                post_code(switch, _address, text_block.text)
+                post_code(switch, _address, text_block)
 
 
 def clear_search(search, tb):
@@ -78,15 +78,13 @@ def clear_search(search, tb):
     globals()['address'] = None
 
 
-def post_code(_status_switch, _address, text):
+def post_code(_status_switch, _address, text_block):
     if _status_switch and _address:
         globals()['postcode'] = get_postal_code(_address)
+    text_block.append(globals()['postcode'])
     if not _status_switch and _address:
         globals()['postcode'] = ''
-    if len(text) > 2:
-        text[-1] = globals()['postcode']
-    else:
-        text.append(globals()['postcode'])
+        text_block.pop(-1)
 
 
 def find_business(token_api, coords):
@@ -160,7 +158,7 @@ def show_map(ll="46.060975, 51.529075", z=16, _map_type='map', add_params=None):
     GUI.add_element(search_div)
     switch = Switch((411, 512, 40, 25), 'Индекс', color_switch=(62, 151, 209), color_background=(240, 248, 255),
                     color_background_on=(240, 248, 255),
-                    func=lambda: post_code(switch.on, globals()['address'], _tb_info.text))
+                    func=lambda: post_code(switch.on, globals()['address'], _tb_info))
     GUI.add_element(switch)
 
     map_file = update_static(','.join([str(_lat), str(_lon)]), _z, map_type, _pt)
